@@ -20,17 +20,43 @@ Greet whomever is specified. This command is mostly for example purposes for add
 
 ![?greet screenshot](https://user-images.githubusercontent.com/2359050/38431625-d3920ade-3992-11e8-91d0-3bb0b22d3f99.png)
 
+## ?remindme duration [subject]
+Remind the user after a specified time delay. The time should be given in the format specified [here](https://golang.org/pkg/time/#ParseDuration), e.g. 10h35m21s. The bot will acknowledge the request with the specified time.
+
+![?remindme acknowledgement](https://user-images.githubusercontent.com/42191246/43987787-99a95fe6-9cf4-11e8-84ae-f3b06cd131d5.PNG)
+
+If no message is supplied, the invoking message will be pinned after the time has elapsed. 
+
+![?remindme with no subject screenshot](https://user-images.githubusercontent.com/42191246/43987786-999c9d92-9cf4-11e8-833c-47fef41bfde5.PNG)
+
+If a message is supplied,a message will be sent with the included reminder.
+
+![?remindme with subject screenshot](https://user-images.githubusercontent.com/42191246/43987788-99b82116-9cf4-11e8-8fe9-407febd0b850.PNG)
+
+## ?decide option [ or option...] 
+Decide between the given options, delimited by " or "
+
+![?decide screenshot](https://user-images.githubusercontent.com/42191246/44006290-06b7a35c-9e50-11e8-9007-281e72530a9d.png)
+
+## ?help
+Lists the usage of each command
+
+![?help screenshot](https://user-images.githubusercontent.com/2359050/49352669-10f04600-f687-11e8-88ea-e67f9a2fe50f.png)
+
 # Contributing
-This project uses dep for dependency management. If you need to add a new dependency, [here](https://golang.github.io/dep/docs/installation.html) are instructions for installing it. Reference [the docs](https://golang.github.io/dep/docs/daily-dep.html#adding-a-new-dependency) for how to add dependencies. The current dependencies are packaged with the repo in the [vendor](https://github.com/ryanmiville/amigobot/tree/master/vendor) directory.
 
+## Getting Started
+This project requires Go 1.11+ modules for dependency management. [Here](https://github.com/golang/go/wiki/Modules) are docs for modules, including usage, adding, and upgrading modules. Simply `git clone` the project **outside** of your $GOPATH, and run `go build ./...` in the root of the project to download all necessary modules. Run `go test ./...` to verify everything is working properly.
 
-Download the repo with `go get github.com/ryanmiville/amigobot`
+This project uses [counterfeiter](https://github.com/maxbrunsfeld/counterfeiter) to generate mocks for testing. The only one you'll probably be concerned with is [fake_session.go](amigobotfakes/fake_session.go). If you find that you need to add more methods from `discordgo.Session` to `amigobot.Session`, just make sure you have `counterfeiter` installed (`go get -u github.com/maxbrunsfeld/counterfeiter`), and run `go generate ./...` from the project root to add the new methods to the mock.
+
+There is a code generation tool for new handlers that you may find convenient. Do `go install ./...` from the root directory to be able to use it.
 
 ## To Add A New Command...
-1. Create a new package
-2. Implement the `Handler` interface found [here](handler.go).
-3. Write a companion test for your new `Handler`
-3. Add an instance of your `Handler` implementation to the `handlers` array in [main.go](cmd/amigobot/main.go)
+1. Create your new `Handler` with `amigogen [name]`
+2. Fill in method stubs
+3. Make sure you update the companion test for your implementation details
+3. Add an instance of your `Handler` implementation to the `Handlers` array in [handlers.go](cmd/amigobot/handlers.go)
 
 See [greet.go](greet/greet.go) as a very simple example.
 
@@ -38,9 +64,7 @@ See [greet.go](greet/greet.go) as a very simple example.
 run all tests with `go test ./...` to verify you haven't broken any command. Again follow the [greet example](greet/greet_test.go) to see how to mock the use of a real discord session.
 
 ## Running Locally
-In the `.../amigobot/cmd/amigobot` directory, run `go install`
-
-Now you should be able to run the app with `amigobot -t [your-bot-token]`
+After running `go install ./...` in the root directory, you should be able to run the app with `amigobot -t [your-bot-token]`
 
 [GoDoc]: https://godoc.org/github.com/ryanmiville/amigobot
 [GoDoc Widget]: https://godoc.org/github.com/ryanmiville/amigobot?status.svg

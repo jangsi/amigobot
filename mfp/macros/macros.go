@@ -23,6 +23,11 @@ func (h *Handler) Command() string {
 	return "?macros "
 }
 
+//Usage how the command works
+func (h Handler) Usage() string {
+	return "Display a table of the current day's macros from the MyFitnessPal account for the given username (your account must be public for this to work)"
+}
+
 //Handle sends a table of the macro grams and percentages of the day
 func (h *Handler) Handle(s amigobot.Session, m *discordgo.MessageCreate) {
 	username := strings.TrimPrefix(m.Content, h.Command())
@@ -49,17 +54,17 @@ func newMacrosMessage(d *mfp.Diary) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	table.Append([]string{"Carbs", d.Total.Carbs, fmt.Sprintf("%d%%", m.carbs)})
-	table.Append([]string{"Protein", d.Total.Protein, fmt.Sprintf("%d%%", m.protein)})
-	table.Append([]string{"Fat", d.Total.Fat, fmt.Sprintf("%d%%", m.fat)})
+	table.Append([]string{"Carbs", d.Total.Carbs, fmt.Sprintf("%.2f%%", m.carbs)})
+	table.Append([]string{"Protein", d.Total.Protein, fmt.Sprintf("%.2f%%", m.protein)})
+	table.Append([]string{"Fat", d.Total.Fat, fmt.Sprintf("%.2f%%", m.fat)})
 	table.Render()
 	return "```" + buffer.String() + "```", nil
 }
 
 type macroPercentages struct {
-	carbs   int
-	protein int
-	fat     int
+	carbs   float32
+	protein float32
+	fat     float32
 }
 
 func newMacroPercentages(d *mfp.Diary) (macroPercentages, error) {
@@ -70,11 +75,11 @@ func newMacroPercentages(d *mfp.Diary) (macroPercentages, error) {
 	if cErr != nil || pErr != nil || fErr != nil {
 		return m, errors.New("Error parsing macros")
 	}
-	total := carbs + protein + fat
+	total := float32(carbs + protein + fat)
 	m = macroPercentages{
-		carbs:   (100 * carbs) / total,
-		protein: (100 * protein) / total,
-		fat:     (100 * fat) / total,
+		carbs:   float32(100*carbs) / total,
+		protein: float32(100*protein) / total,
+		fat:     float32(100*fat) / total,
 	}
 	return m, nil
 }
